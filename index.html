@@ -7,6 +7,77 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB8Bd6UcTiTsvSpWk_60wXhM341-E5lm7Q",
+    authDomain: "clearmind-aa5e3.firebaseapp.com",
+    projectId: "clearmind-aa5e3",
+    storageBucket: "clearmind-aa5e3.firebasestorage.app",
+    messagingSenderId: "1030434087145",
+    appId: "1:1030434087145:web:3e36d45f3ca4489fd99078"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  provider.addScope('https://www.googleapis.com/auth/classroom.courses.readonly');
+  provider.addScope('https://www.googleapis.com/auth/classroom.coursework.me.readonly');
+  provider.addScope('https://www.googleapis.com/auth/gmail.readonly');
+
+  // Make auth functions available globally
+  window.firebaseSignInWithGoogle = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const name = user.displayName || user.email.split('@')[0];
+      window.enterApp(name);
+    } catch (err) {
+      console.error('Google sign in error:', err);
+      if (err.code !== 'auth/popup-closed-by-user') {
+        alert('Sign in failed: ' + err.message);
+      }
+    }
+  };
+
+  window.firebaseSignOut = async () => {
+    await signOut(auth);
+    window.goLanding();
+  };
+
+  window.firebaseEmailSignUp = async (name, email, password) => {
+    try {
+      const { createUserWithEmailAndPassword, updateProfile } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js");
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(result.user, { displayName: name });
+      window.enterApp(name);
+    } catch (err) {
+      console.error('Sign up error:', err);
+      alert('Sign up failed: ' + (err.message || 'Try again'));
+    }
+  };
+
+  window.firebaseEmailSignIn = async (email, password) => {
+    try {
+      const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js");
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const name = result.user.displayName || email.split('@')[0];
+      window.enterApp(name);
+    } catch (err) {
+      console.error('Sign in error:', err);
+      alert('Sign in failed: ' + (err.message || 'Check your email and password'));
+    }
+  };
+
+  // Check if already logged in
+  onAuthStateChanged(auth, (user) => {
+    if (user && document.getElementById('landing-view') && !document.getElementById('landing-view').classList.contains('hidden')) {
+      window.enterApp(user.displayName || user.email.split('@')[0]);
+    }
+  });
+</script>
 <style>
   :root {
     --ink: #0d0d0f;
@@ -38,6 +109,7 @@
     font-family: 'Syne', sans-serif;
   }
 
+  /* ── NAV ── */
   nav {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
@@ -74,6 +146,7 @@
   .btn-google:hover { background: #f8f8f8; border-color: #aaa; }
   .btn-lg { padding: 0.9rem 2rem; font-size: 1rem; }
 
+  /* ── HERO ── */
   .hero {
     min-height: 100vh; display: flex; align-items: center;
     padding: 7rem 2rem 4rem;
@@ -164,6 +237,7 @@
     30% { transform: translateY(-5px); }
   }
 
+  /* ── FEATURES ── */
   .section { padding: 5rem 2rem; }
   .section-inner { max-width: 1100px; margin: 0 auto; }
 
@@ -202,6 +276,7 @@
   .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
   .feature-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
 
+  /* ── APP SECTION ── */
   .app-section { background: var(--cream); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 
   .app-tabs {
@@ -229,6 +304,7 @@
   .window-dot { width: 10px; height: 10px; border-radius: 50%; }
   .wd-r { background: #ff5f57; } .wd-y { background: #ffbd2e; } .wd-g { background: #28c840; }
 
+  /* Tutor UI */
   .tutor-layout { display: grid; grid-template-columns: 240px 1fr; min-height: 440px; }
 
   .tutor-sidebar {
@@ -266,6 +342,7 @@
   }
   .send-btn:hover { background: var(--sage-light); }
 
+  /* Planner UI */
   .planner-layout { padding: 1.4rem; min-height: 440px; }
   .planner-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
   .planner-header h3 { font-size: 1rem; font-weight: 700; }
@@ -296,6 +373,7 @@
   .upcoming-info .meta { font-size: 0.75rem; color: var(--muted); }
   .upcoming-time { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
 
+  /* Google Connect UI */
   .connect-layout { padding: 1.4rem; min-height: 440px; }
   .connect-intro { margin-bottom: 1.5rem; }
   .connect-intro p { font-size: 0.875rem; color: var(--muted); }
@@ -320,17 +398,20 @@
   .int-status.connect:hover { background: var(--sage); }
   .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+  /* ── PRICING / CTA ── */
   .cta-section { text-align: center; padding: 5rem 2rem; }
   .cta-section h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem; }
   .cta-section p { color: var(--muted); margin-bottom: 2rem; font-size: 1rem; max-width: 400px; margin-left: auto; margin-right: auto; }
   .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
 
+  /* ── FOOTER ── */
   footer {
     border-top: 1px solid var(--border); padding: 2rem;
     display: flex; align-items: center; justify-content: space-between;
     color: var(--muted); font-size: 0.8rem;
   }
 
+  /* ── MODAL (Auth) ── */
   .modal-overlay {
     position: fixed; inset: 0; z-index: 99999;
     background: rgba(13,13,15,0.6);
@@ -369,6 +450,7 @@
   }
   .modal { position: relative; }
 
+  /* ── FULL APP (post-login) ── */
   #app-view { display: none; flex-direction: column; min-height: 100vh; }
   #app-view.active { display: flex; }
   #landing-view.hidden { display: none; }
@@ -398,6 +480,7 @@
   .app-panel { display: none; height: calc(100vh - 60px); }
   .app-panel.active { display: flex; flex-direction: column; }
 
+  /* ── TUTOR PANEL ── */
   .full-tutor { display: grid; grid-template-columns: 220px 1fr; height: 100%; }
   .full-sidebar {
     border-right: 1px solid var(--border); background: var(--paper);
@@ -449,8 +532,8 @@
   .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
   .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
-  /* ── PLANNER PANEL (updated) ── */
-  .planner-panel { padding: 1.5rem; overflow-y: auto; height: 100%; }
+  /* ── PLANNER PANEL ── */
+  .planner-panel { padding: 1.5rem; overflow-y: auto; }
   .planner-panel h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem; }
   .planner-panel .sub { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
 
@@ -461,7 +544,7 @@
   .schedule-form h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; }
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem; }
   .form-group label { font-size: 0.78rem; font-weight: 500; color: var(--muted); display: block; margin-bottom: 0.3rem; }
-  .form-group select, .form-group input[type=time], .form-group input[type=number], .form-group input[type=text] {
+  .form-group select, .form-group input[type=time], .form-group input[type=number] {
     width: 100%; padding: 0.55rem 0.8rem; border: 1.5px solid var(--border);
     border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
     outline: none; background: var(--paper); color: var(--ink);
@@ -476,107 +559,21 @@
   }
   .day-check.on { background: var(--ink); color: #fff; border-color: var(--ink); }
 
-  /* Calendar grid */
-  .cal-wrapper {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: var(--radius); overflow: hidden; margin-bottom: 1.5rem;
-  }
-  .cal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border);
-    background: var(--cream);
-  }
-  .cal-header h3 { font-size: 0.95rem; font-weight: 700; }
-  .cal-nav { display: flex; gap: 0.4rem; }
-  .cal-nav-btn {
-    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
-    background: var(--card); cursor: pointer; font-size: 0.85rem;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.15s; color: var(--ink);
-  }
-  .cal-nav-btn:hover { background: var(--cream); }
-
-  .cal-day-labels {
-    display: grid; grid-template-columns: repeat(7, 1fr);
-    border-bottom: 1px solid var(--border);
-  }
-  .cal-day-label {
-    text-align: center; padding: 0.5rem; font-size: 0.7rem;
-    font-weight: 600; text-transform: uppercase; color: var(--muted);
-  }
-
-  .cal-grid {
-    display: grid; grid-template-columns: repeat(7, 1fr);
-  }
-  .cal-cell {
-    min-height: 72px; border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border); padding: 0.3rem;
-    position: relative; cursor: pointer; transition: background 0.12s;
-  }
-  .cal-cell:nth-child(7n) { border-right: none; }
-  .cal-cell:hover { background: var(--paper); }
-  .cal-cell.other-month .cal-cell-num { color: var(--border); }
-  .cal-cell.today { background: rgba(74,124,111,0.04); }
-  .cal-cell-num {
-    font-size: 0.75rem; font-weight: 500; color: var(--muted);
-    width: 22px; height: 22px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 2px;
-  }
-  .cal-cell.today .cal-cell-num {
-    background: var(--sage); color: #fff;
-  }
-  .cal-event {
-    padding: 0.15rem 0.35rem; border-radius: 4px; font-size: 0.62rem;
-    font-weight: 500; margin-bottom: 2px; cursor: pointer;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    transition: opacity 0.15s;
-  }
-  .cal-event:hover { opacity: 0.8; }
-
-  /* Add-event modal */
-  .event-modal {
-    display: none; position: fixed; inset: 0; z-index: 200;
-    background: rgba(13,13,15,0.5);
-    align-items: center; justify-content: center;
-  }
-  .event-modal.open { display: flex; }
-  .event-modal-box {
-    background: var(--card); border: 1px solid var(--border);
-    border-radius: 16px; padding: 1.5rem; width: 90%; max-width: 360px;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-  }
-  .event-modal-box h4 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
-  .event-modal-box .form-group { margin-bottom: 0.75rem; }
-  .event-modal-box input, .event-modal-box select {
-    width: 100%; padding: 0.55rem 0.8rem; border: 1.5px solid var(--border);
-    border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
-    outline: none; background: var(--paper); color: var(--ink);
-  }
-  .event-modal-box input:focus, .event-modal-box select:focus { border-color: var(--sage); }
-  .event-modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1rem; }
-
-  /* AI plan output */
   .plan-output {
     background: var(--card); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 1.4rem; margin-bottom: 1.5rem;
+    border-radius: var(--radius); padding: 1.4rem;
   }
-  .plan-output h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.6rem; }
-  .plan-ai-tip {
-    margin-top: 1rem; padding: 0.8rem; background: rgba(74,124,111,0.07);
-    border-radius: 10px; font-size: 0.82rem; color: var(--muted);
+  .plan-output h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; }
+  .plan-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; }
+  .plan-day-col .plan-day-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 0.3rem; }
+  .plan-block {
+    padding: 0.3rem 0.35rem; border-radius: 5px; font-size: 0.62rem;
+    font-weight: 500; margin-bottom: 3px; text-align: center; cursor: pointer;
+    transition: opacity 0.15s;
   }
-  .plan-loading {
-    display: flex; align-items: center; gap: 0.6rem;
-    color: var(--muted); font-size: 0.875rem; padding: 0.5rem 0;
-  }
-  .plan-loading-dots span {
-    display: inline-block; width: 5px; height: 5px; border-radius: 50%;
-    background: var(--sage); margin: 0 2px; animation: bounce 1.2s infinite;
-  }
-  .plan-loading-dots span:nth-child(2) { animation-delay: 0.2s; }
-  .plan-loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  .plan-block:hover { opacity: 0.75; }
 
+  /* ── CONNECT PANEL ── */
   .connect-panel { padding: 1.5rem; overflow-y: auto; }
   .connect-panel h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem; }
   .connect-panel .sub { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
@@ -597,6 +594,7 @@
     font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.7rem; border-radius: 999px;
   }
 
+  /* ── Animations ── */
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -608,6 +606,7 @@
   .hero-content > *:nth-child(4) { animation-delay: 0.4s; }
   .hero-visual { animation: fadeUp 0.7s 0.3s ease both; }
 
+  /* ── Responsive ── */
   @media (max-width: 768px) {
     .hero-inner { grid-template-columns: 1fr; }
     .hero-visual { display: none; }
@@ -621,6 +620,75 @@
     .form-row { grid-template-columns: 1fr; }
     nav .nav-links { display: none; }
   }
+
+  /* ── CALENDAR (added by Ramin) ── */
+  .cal-wrapper {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden; margin-bottom: 1.5rem;
+  }
+  .cal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border);
+    background: var(--cream);
+  }
+  .cal-header h3 { font-size: 0.95rem; font-weight: 700; }
+  .cal-nav-btn {
+    width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--card); cursor: pointer; font-size: 0.85rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; color: var(--ink);
+  }
+  .cal-nav-btn:hover { background: var(--cream); }
+  .cal-day-labels {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+  .cal-day-label {
+    text-align: center; padding: 0.5rem; font-size: 0.7rem;
+    font-weight: 600; text-transform: uppercase; color: var(--muted);
+  }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .cal-cell {
+    min-height: 72px; border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border); padding: 0.3rem;
+    cursor: pointer; transition: background 0.12s;
+  }
+  .cal-cell:nth-child(7n) { border-right: none; }
+  .cal-cell:hover { background: var(--paper); }
+  .cal-cell.other-month .cal-cell-num { color: var(--border); }
+  .cal-cell.today { background: rgba(74,124,111,0.04); }
+  .cal-cell-num {
+    font-size: 0.75rem; font-weight: 500; color: var(--muted);
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 2px;
+  }
+  .cal-cell.today .cal-cell-num { background: var(--sage); color: #fff; }
+  .cal-event {
+    padding: 0.15rem 0.35rem; border-radius: 4px; font-size: 0.62rem;
+    font-weight: 500; margin-bottom: 2px; cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.15s;
+  }
+  .cal-event:hover { opacity: 0.8; }
+  .event-modal {
+    display: none; position: fixed; inset: 0; z-index: 99999;
+    background: rgba(13,13,15,0.5); align-items: center; justify-content: center;
+  }
+  .event-modal.open { display: flex; }
+  .event-modal-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 1.5rem; width: 90%; max-width: 360px;
+  }
+  .event-modal-box h4 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; }
+  .event-modal-box .form-group { margin-bottom: 0.75rem; }
+  .event-modal-box input, .event-modal-box select {
+    width: 100%; padding: 0.55rem 0.8rem; border: 1.5px solid var(--border);
+    border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    outline: none; background: var(--paper); color: var(--ink);
+  }
+  .event-modal-box input:focus, .event-modal-box select:focus { border-color: var(--sage); }
+  .event-modal-actions { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1rem; }
+  .plan-output { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem; margin-bottom: 1.5rem; }
+
 </style>
 </head>
 <body>
@@ -641,6 +709,7 @@
     </div>
   </nav>
 
+  <!-- HERO -->
   <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-inner">
@@ -670,6 +739,7 @@
     </div>
   </section>
 
+  <!-- FEATURES -->
   <section class="section" id="features">
     <div class="section-inner">
       <div class="section-label">What makes ClearMind different</div>
@@ -710,6 +780,7 @@
     </div>
   </section>
 
+  <!-- APP PREVIEW -->
   <section class="section app-section" id="how">
     <div class="section-inner">
       <div class="section-label">See it in action</div>
@@ -733,6 +804,7 @@
           <div style="width:52px"></div>
         </div>
 
+        <!-- Preview: Tutor -->
         <div id="preview-tutor" class="preview-panel" style="display:block">
           <div class="tutor-layout">
             <div class="tutor-sidebar">
@@ -757,6 +829,7 @@
           </div>
         </div>
 
+        <!-- Preview: Planner -->
         <div id="preview-planner" class="preview-panel" style="display:none">
           <div class="planner-layout">
             <div class="planner-header">
@@ -780,6 +853,7 @@
           </div>
         </div>
 
+        <!-- Preview: Connect -->
         <div id="preview-connect" class="preview-panel" style="display:none">
           <div class="connect-layout">
             <div class="connect-intro"><h3 style="font-size:1rem;font-weight:700;margin-bottom:0.3rem">Connect your Google apps</h3><p>Give ClearMind access to your school tools so it can see your assignments, due dates, and schedule automatically.</p></div>
@@ -811,6 +885,7 @@
     </div>
   </section>
 
+  <!-- CTA -->
   <section class="cta-section" id="pricing">
     <div class="section-label" style="display:block;text-align:center;margin-bottom:0.8rem">Free to start</div>
     <h2>Your grades aren't going<br>to fix themselves. 😄</h2>
@@ -836,7 +911,7 @@
     <div id="modal-login">
       <h2>Welcome back</h2>
       <p>Sign in to your ClearMind account</p>
-      <button class="btn btn-google" onclick="demoGoogleLogin()">
+      <button class="btn btn-google" onclick="window.firebaseSignInWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
         Continue with Google
       </button>
@@ -844,14 +919,14 @@
       <div class="modal-form">
         <input type="email" placeholder="Email address" id="login-email">
         <input type="password" placeholder="Password" id="login-pass">
-        <button class="btn btn-primary" onclick="demoLogin()">Sign in</button>
+        <button class="btn btn-primary" onclick="window.firebaseEmailSignIn(document.getElementById('login-email').value, document.getElementById('login-pass').value)">Sign in</button>
       </div>
       <p class="modal-switch">Don't have an account? <a onclick="switchModal('signup')">Sign up free</a></p>
     </div>
     <div id="modal-signup" style="display:none">
       <h2>Get started free</h2>
       <p>Create your ClearMind account</p>
-      <button class="btn btn-google" onclick="demoGoogleLogin()">
+      <button class="btn btn-google" onclick="window.firebaseSignInWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
         Sign up with Google
       </button>
@@ -860,7 +935,7 @@
         <input type="text" placeholder="Your name" id="signup-name">
         <input type="email" placeholder="Email address" id="signup-email">
         <input type="password" placeholder="Create password" id="signup-pass">
-        <button class="btn btn-primary" onclick="demoLogin()">Create account</button>
+        <button class="btn btn-primary" onclick="window.firebaseEmailSignUp(document.getElementById('signup-name').value, document.getElementById('signup-email').value, document.getElementById('signup-pass').value)">Create account</button>
       </div>
       <p class="modal-switch">Already have an account? <a onclick="switchModal('login')">Sign in</a></p>
     </div>
@@ -879,7 +954,7 @@
         <button class="app-nav-tab" onclick="switchAppTab(this,'panel-connect')">🔗 Connect</button>
       </div>
     </div>
-    <div class="user-avatar" id="userAvatar">S</div>
+    <div class="user-avatar" id="userAvatar" onclick="if(confirm('Sign out?')) window.firebaseSignOut()" title="Click to sign out">S</div>
   </nav>
 
   <div class="app-content">
@@ -920,13 +995,11 @@
       </div>
     </div>
 
-    <!-- ── PLANNER PANEL (fully updated) ── -->
+    <!-- ── PLANNER PANEL ── -->
     <div class="app-panel" id="panel-planner">
       <div class="planner-panel">
         <h2>Study Planner</h2>
         <p class="sub">Tell me your schedule and I'll build a study plan that actually works for your life.</p>
-
-        <!-- Settings form -->
         <div class="schedule-form">
           <h3>⚙️ Set your availability</h3>
           <div class="form-row">
@@ -963,16 +1036,12 @@
           </div>
           <button class="btn btn-primary" id="generateBtn" onclick="generatePlan()">✨ Generate my plan</button>
         </div>
-
-        <!-- AI plan summary -->
         <div class="plan-output" id="planOutput">
           <h3>📋 AI Study Plan</h3>
           <div id="planText" style="font-size:0.875rem;color:var(--muted);line-height:1.7">
             Hit <strong style="color:var(--ink)">Generate my plan</strong> above and I'll build a personalised weekly schedule for you.
           </div>
         </div>
-
-        <!-- Live calendar -->
         <div class="cal-wrapper">
           <div class="cal-header">
             <button class="cal-nav-btn" onclick="calNav(-1)">‹</button>
@@ -993,7 +1062,34 @@
           </div>
           <div class="cal-grid" id="calGrid"></div>
         </div>
+      </div>
+    </div>
 
+    <!-- Add Event Modal -->
+    <div class="event-modal" id="eventModal">
+      <div class="event-modal-box">
+        <h4>📅 Add study session</h4>
+        <div class="form-group"><label style="font-size:0.78rem;font-weight:500;color:var(--muted);display:block;margin-bottom:0.3rem">Subject</label>
+          <select id="evSubject">
+            <option>Math</option><option>Science</option><option>English</option>
+            <option>History</option><option>SAT Prep</option><option>ACT Prep</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label style="font-size:0.78rem;font-weight:500;color:var(--muted);display:block;margin-bottom:0.3rem">Date</label>
+          <input type="date" id="evDate">
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label style="font-size:0.78rem;font-weight:500;color:var(--muted);display:block;margin-bottom:0.3rem">Start time</label>
+            <input type="time" id="evStart" value="16:00">
+          </div>
+          <div class="form-group"><label style="font-size:0.78rem;font-weight:500;color:var(--muted);display:block;margin-bottom:0.3rem">Duration (min)</label>
+            <input type="number" id="evDuration" value="45" min="15" max="180" step="15">
+          </div>
+        </div>
+        <div class="event-modal-actions">
+          <button class="btn btn-outline" onclick="closeAddEvent()">Cancel</button>
+          <button class="btn btn-sage" onclick="saveEvent()">Save</button>
+        </div>
       </div>
     </div>
 
@@ -1010,7 +1106,7 @@
               <h4>Google Classroom</h4>
             </div>
             <p>Automatically pulls your assignments, due dates, class announcements, and upcoming tests. ClearMind uses this to prioritize what you study first.</p>
-            <button class="btn btn-primary" id="btn-classroom" onclick="window.location.href='classroom.html'" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Classroom</button>
+            <button class="btn btn-primary" id="btn-classroom" onclick="connectApp('classroom')" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Classroom</button>
           </div>
 
           <div class="int-card-full" id="card-gmail">
@@ -1019,7 +1115,7 @@
               <h4>Gmail</h4>
             </div>
             <p>Scans your school emails for assignment details, schedule changes, and teacher announcements — then adds them to your study plan.</p>
-            <button class="btn btn-primary" id="btn-gmail" onclick="window.location.href='gmail.html'" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Gmail</button>
+            <button class="btn btn-primary" id="btn-gmail" onclick="connectApp('gmail')" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Gmail</button>
           </div>
 
           <div class="int-card-full" id="card-calendar">
@@ -1028,7 +1124,7 @@
               <h4>Google Calendar</h4>
             </div>
             <p>Adds your ClearMind study sessions directly to Google Calendar so everything lives in one place and you get reminders.</p>
-            <button class="btn btn-primary" id="btn-calendar" onclick="window.location.href='calendar.html'" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Calendar</button>
+            <button class="btn btn-primary" id="btn-calendar" onclick="connectApp('calendar')" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Calendar</button>
           </div>
 
           <div class="int-card-full" id="card-drive">
@@ -1037,7 +1133,7 @@
               <h4>Google Drive</h4>
             </div>
             <p>Upload notes, textbook pages, or study guides from your Drive and ClearMind will use them to teach you the material directly.</p>
-            <button class="btn btn-primary" id="btn-drive" onclick="window.location.href='drive.html'" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Drive</button>
+            <button class="btn btn-primary" id="btn-drive" onclick="connectApp('drive')" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Drive</button>
           </div>
         </div>
 
@@ -1064,71 +1160,12 @@
   </div>
 </div>
 
-<!-- ── ADD EVENT MODAL ── -->
-<div class="event-modal" id="eventModal">
-  <div class="event-modal-box">
-    <h4>Add study session</h4>
-    <div class="form-group">
-      <label>Subject</label>
-      <select id="evSubject">
-        <option value="Math">Math</option>
-        <option value="Science">Science</option>
-        <option value="English">English</option>
-        <option value="History">History</option>
-        <option value="SAT Prep">SAT Prep</option>
-        <option value="ACT Prep">ACT Prep</option>
-        <option value="Other">Other</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="evDate">
-    </div>
-    <div class="form-row" style="margin-bottom:0">
-      <div class="form-group">
-        <label>Start time</label>
-        <input type="time" id="evStart" value="16:00">
-      </div>
-      <div class="form-group">
-        <label>Duration</label>
-        <select id="evDuration">
-          <option value="30">30 min</option>
-          <option value="45" selected>45 min</option>
-          <option value="60">1 hour</option>
-          <option value="90">1.5 hours</option>
-          <option value="120">2 hours</option>
-        </select>
-      </div>
-    </div>
-    <div class="event-modal-actions">
-      <button class="btn btn-outline" style="padding:0.5rem 1rem;font-size:0.85rem" onclick="closeAddEvent()">Cancel</button>
-      <button class="btn btn-primary" style="padding:0.5rem 1rem;font-size:0.85rem" onclick="saveEvent()">Save session</button>
-    </div>
-  </div>
-</div>
-
 
 <script>
 // ─── STATE ───
 let currentSubject = 'Math';
 let userName = 'Student';
-
-// ─── CALENDAR STATE ───
-let calYear, calMonth;
-// events: { 'YYYY-MM-DD': [{subject, start, duration, color}] }
-let calEvents = {};
-
-const SUBJECT_COLORS = {
-  'Math':    { bg: 'rgba(74,124,111,0.18)',  text: '#2d6b5e' },
-  'Science': { bg: 'rgba(139,92,246,0.18)',  text: '#6d3ec5' },
-  'English': { bg: 'rgba(59,130,246,0.18)',  text: '#1a5fb4' },
-  'History': { bg: 'rgba(212,136,42,0.18)',  text: '#a0620e' },
-  'SAT Prep':{ bg: 'rgba(239,68,68,0.18)',   text: '#c0392b' },
-  'ACT Prep':{ bg: 'rgba(20,184,166,0.18)',  text: '#0d7a6a' },
-  'Other':   { bg: 'rgba(120,120,120,0.18)', text: '#555' }
-};
-
-const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+// API key is securely stored server-side in Netlify environment variables
 
 // ─── LANDING HELPERS ───
 function scrollToSection(id) { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); }
@@ -1142,10 +1179,12 @@ function showPreviewTab(btn, panelId) {
 
 // ─── AUTH ───
 function openModal(type) {
+  console.log('openModal called with:', type);
   const modal = document.getElementById('authModal');
-  if (!modal) return;
+  if (!modal) { console.error('authModal not found!'); return; }
   modal.classList.add('open');
   switchModal(type);
+  console.log('Modal classes:', modal.className);
 }
 function closeModal() { document.getElementById('authModal').classList.remove('open'); }
 function switchModal(type) {
@@ -1165,6 +1204,7 @@ function enterApp(name) {
   closeModal();
   document.getElementById('landing-view').classList.add('hidden');
   document.getElementById('app-view').classList.add('active');
+  generatePlan();
   initCalendar();
   setTimeout(checkGoogleConnectionStatus, 300);
 }
@@ -1274,219 +1314,84 @@ async function callClearMindAI(userMessage) {
   }
 }
 
-// ─── PLANNER ───
-function toggleDay(btn) { btn.classList.toggle('on'); }
 
-async function generatePlan() {
-  const btn = document.getElementById('generateBtn');
-  const planText = document.getElementById('planText');
-  const activeDays = Array.from(document.querySelectorAll('.day-check.on')).map(b=>b.textContent);
-  const schoolEnd = document.getElementById('schoolEnd').value;
-  const bedtime = document.getElementById('bedtime').value;
-  const hours = document.getElementById('studyHours').value;
-  const test = document.getElementById('upcomingTest').value;
+// ─── CALENDAR STATE (added by Ramin) ───
+let calEvents = {};
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
 
-  if (activeDays.length === 0) {
-    planText.innerHTML = '<span style="color:var(--amber)">Please select at least one study day.</span>';
-    return;
-  }
+const SUBJECT_COLORS = {
+  'Math':    { bg: 'rgba(74,124,111,0.18)',  text: '#2d6b5e' },
+  'Science': { bg: 'rgba(139,92,246,0.18)',  text: '#6d3ec5' },
+  'English': { bg: 'rgba(59,130,246,0.18)',  text: '#1a5fb4' },
+  'History': { bg: 'rgba(212,136,42,0.18)',  text: '#a0620e' },
+  'SAT Prep':{ bg: 'rgba(239,68,68,0.18)',   text: '#c0392b' },
+  'ACT Prep':{ bg: 'rgba(20,184,166,0.18)',  text: '#0d7a6a' },
+  'Other':   { bg: 'rgba(120,120,120,0.18)', text: '#555' }
+};
 
-  btn.disabled = true;
-  btn.textContent = 'Generating…';
-  planText.innerHTML = `<div class="plan-loading">
-    <div class="plan-loading-dots"><span></span><span></span><span></span></div>
-    ClearMind is building your personalised plan…
-  </div>`;
-
-  const prompt = `You are ClearMind, an AI study planner. A student has given you their availability:
-- Available days: ${activeDays.join(', ')}
-- School ends at: ${schoolEnd}
-- Bedtime: ${bedtime}
-- Daily study goal: ${hours} hours
-- Upcoming test/deadline: ${test || 'none mentioned'}
-
-Build a specific, actionable 7-day study schedule for this week starting ${getThisMonday()}. 
-Assign subjects (Math, Science, English, History, SAT Prep as relevant) to each available day with specific times between school end and bedtime.
-Also give 2-3 brief personalised tips based on their schedule.
-
-Respond in this EXACT JSON format (no markdown, no extra text):
-{
-  "schedule": [
-    {"day": "Mon", "date": "YYYY-MM-DD", "sessions": [{"subject": "Math", "time": "16:00", "duration": 45, "topic": "brief topic"}]},
-    ...
-  ],
-  "tips": ["tip1", "tip2", "tip3"]
-}`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    const data = await response.json();
-    const raw = data.content?.[0]?.text || '';
-
-    let plan;
-    try {
-      const cleaned = raw.replace(/```json|```/g, '').trim();
-      plan = JSON.parse(cleaned);
-    } catch(e) {
-      throw new Error('Could not parse AI response');
-    }
-
-    // Add sessions to calendar
-    if (plan.schedule) {
-      plan.schedule.forEach(day => {
-        day.sessions.forEach(session => {
-          addCalEvent(day.date, session.subject, session.time, session.duration);
-        });
-      });
-      renderCalendar();
-    }
-
-    // Build tips HTML
-    const tipsHtml = plan.tips ? plan.tips.map(t => `<li style="margin-bottom:0.3rem">${t}</li>`).join('') : '';
-
-    planText.innerHTML = `
-      <p style="color:var(--ink);margin-bottom:0.8rem">Here's your personalised plan for the week. Sessions have been added to your calendar below.</p>
-      ${tipsHtml ? `<strong style="color:var(--sage);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em">💡 Tips for you</strong><ul style="margin-top:0.4rem;padding-left:1.2rem;font-size:0.85rem;color:var(--muted)">${tipsHtml}</ul>` : ''}
-    `;
-
-  } catch(err) {
-    console.error('Plan generation error:', err);
-    // Fallback: generate a simple plan without AI
-    fallbackGeneratePlan(activeDays, schoolEnd, hours);
-  }
-
-  btn.disabled = false;
-  btn.textContent = '✨ Generate my plan';
-}
-
-function fallbackGeneratePlan(activeDays, schoolEnd, hours) {
-  const subjects = ['Math','Science','English','History','SAT Prep'];
-  const planText = document.getElementById('planText');
-  const today = new Date();
-
-  activeDays.forEach((dayName, i) => {
-    const date = getDateForDayName(dayName);
-    if (!date) return;
-    const dateStr = toDateStr(date);
-    const [h, m] = schoolEnd.split(':').map(Number);
-    const startHour = h + 1;
-    const subject = subjects[i % subjects.length];
-    addCalEvent(dateStr, subject, `${String(startHour).padStart(2,'0')}:${String(m).padStart(2,'0')}`, Math.round(hours * 60 / 1));
-  });
-
-  renderCalendar();
-  planText.innerHTML = `<p style="color:var(--muted)">Plan generated based on your availability. Click <strong style="color:var(--ink)">+ Add session</strong> to customise it further.</p>`;
-}
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 function getThisMonday() {
-  const d = new Date();
-  const day = d.getDay();
+  const d = new Date(); const day = d.getDay();
   const diff = day === 0 ? -6 : 1 - day;
-  d.setDate(d.getDate() + diff);
-  return toDateStr(d);
+  d.setDate(d.getDate() + diff); return toDateStr(d);
 }
-
 function getDateForDayName(dayName) {
   const map = {Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6,Sun:0};
-  const target = map[dayName];
-  if (target === undefined) return null;
-  const today = new Date();
-  const curr = today.getDay();
-  let diff = target - curr;
-  if (diff < 0) diff += 7;
-  const d = new Date(today);
-  d.setDate(today.getDate() + diff);
-  return d;
+  const target = map[dayName]; if (target === undefined) return null;
+  const today = new Date(); const curr = today.getDay();
+  let diff = target - curr; if (diff < 0) diff += 7;
+  const d = new Date(today); d.setDate(today.getDate() + diff); return d;
 }
-
 function toDateStr(d) {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
-// ─── CALENDAR ───
 function initCalendar() {
-  const now = new Date();
-  calYear = now.getFullYear();
-  calMonth = now.getMonth();
-  renderCalendar();
+  const now = new Date(); calYear = now.getFullYear(); calMonth = now.getMonth(); renderCalendar();
 }
-
 function calNav(dir) {
   calMonth += dir;
   if (calMonth > 11) { calMonth = 0; calYear++; }
   if (calMonth < 0)  { calMonth = 11; calYear--; }
   renderCalendar();
 }
-
 function renderCalendar() {
   const title = document.getElementById('calTitle');
   const grid = document.getElementById('calGrid');
   if (!title || !grid) return;
-
   title.textContent = `${MONTH_NAMES[calMonth]} ${calYear}`;
-
-  const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Sun
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
   const daysInPrev = new Date(calYear, calMonth, 0).getDate();
-  const today = new Date();
-  const todayStr = toDateStr(today);
-
+  const todayStr = toDateStr(new Date());
   grid.innerHTML = '';
-
-  let cellCount = 0;
   const totalCells = Math.ceil((firstDay + daysInMonth) / 7) * 7;
-
   for (let i = 0; i < totalCells; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'cal-cell';
-
+    const cell = document.createElement('div'); cell.className = 'cal-cell';
     let dateStr, dayNum, isOther = false;
-
     if (i < firstDay) {
       dayNum = daysInPrev - firstDay + i + 1;
-      const d = new Date(calYear, calMonth - 1, dayNum);
-      dateStr = toDateStr(d);
-      isOther = true;
+      dateStr = toDateStr(new Date(calYear, calMonth - 1, dayNum)); isOther = true;
     } else if (i >= firstDay + daysInMonth) {
       dayNum = i - firstDay - daysInMonth + 1;
-      const d = new Date(calYear, calMonth + 1, dayNum);
-      dateStr = toDateStr(d);
-      isOther = true;
+      dateStr = toDateStr(new Date(calYear, calMonth + 1, dayNum)); isOther = true;
     } else {
       dayNum = i - firstDay + 1;
       dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(dayNum).padStart(2,'0')}`;
     }
-
     if (isOther) cell.classList.add('other-month');
     if (dateStr === todayStr) cell.classList.add('today');
-
     cell.dataset.date = dateStr;
     cell.addEventListener('click', () => openAddEventOnDate(dateStr));
-
-    const numEl = document.createElement('div');
-    numEl.className = 'cal-cell-num';
-    numEl.textContent = dayNum;
+    const numEl = document.createElement('div'); numEl.className = 'cal-cell-num'; numEl.textContent = dayNum;
     cell.appendChild(numEl);
-
-    // Render events for this date
     const evs = calEvents[dateStr] || [];
     evs.forEach(ev => {
-      const evEl = document.createElement('div');
-      evEl.className = 'cal-event';
+      const evEl = document.createElement('div'); evEl.className = 'cal-event';
       const colors = SUBJECT_COLORS[ev.subject] || SUBJECT_COLORS['Other'];
-      evEl.style.background = colors.bg;
-      evEl.style.color = colors.text;
-      const [h, m] = ev.start.split(':');
-      const hour = parseInt(h);
+      evEl.style.background = colors.bg; evEl.style.color = colors.text;
+      const [h, m] = ev.start.split(':'); const hour = parseInt(h);
       const ampm = hour >= 12 ? 'pm' : 'am';
       const disp = ((hour % 12) || 12) + (m !== '00' ? ':'+m : '') + ampm;
       evEl.textContent = `${ev.subject} ${disp}`;
@@ -1494,42 +1399,28 @@ function renderCalendar() {
       evEl.addEventListener('click', (e) => { e.stopPropagation(); removeCalEvent(dateStr, ev); });
       cell.appendChild(evEl);
     });
-
     grid.appendChild(cell);
   }
 }
-
 function addCalEvent(dateStr, subject, start, duration) {
   if (!calEvents[dateStr]) calEvents[dateStr] = [];
-  // Avoid exact duplicates
   const exists = calEvents[dateStr].some(e => e.subject === subject && e.start === start);
-  if (!exists) {
-    calEvents[dateStr].push({ subject, start, duration: parseInt(duration) });
-  }
+  if (!exists) calEvents[dateStr].push({ subject, start, duration: parseInt(duration) });
 }
-
 function removeCalEvent(dateStr, ev) {
   if (!calEvents[dateStr]) return;
   calEvents[dateStr] = calEvents[dateStr].filter(e => !(e.subject === ev.subject && e.start === ev.start));
   renderCalendar();
 }
-
-// ─── ADD EVENT MODAL ───
 function openAddEvent() {
-  const today = toDateStr(new Date());
-  document.getElementById('evDate').value = today;
+  document.getElementById('evDate').value = toDateStr(new Date());
   document.getElementById('eventModal').classList.add('open');
 }
-
 function openAddEventOnDate(dateStr) {
   document.getElementById('evDate').value = dateStr;
   document.getElementById('eventModal').classList.add('open');
 }
-
-function closeAddEvent() {
-  document.getElementById('eventModal').classList.remove('open');
-}
-
+function closeAddEvent() { document.getElementById('eventModal').classList.remove('open'); }
 function saveEvent() {
   const subject = document.getElementById('evSubject').value;
   const date = document.getElementById('evDate').value;
@@ -1537,25 +1428,63 @@ function saveEvent() {
   const duration = document.getElementById('evDuration').value;
   if (!date) return;
   addCalEvent(date, subject, start, duration);
-  renderCalendar();
-  // If we're on a different month, navigate to it
   const [y, mo] = date.split('-').map(Number);
-  if (y !== calYear || (mo - 1) !== calMonth) {
-    calYear = y; calMonth = mo - 1;
-    renderCalendar();
-  }
-  closeAddEvent();
+  if (y !== calYear || (mo - 1) !== calMonth) { calYear = y; calMonth = mo - 1; }
+  renderCalendar(); closeAddEvent();
 }
-
-// Click outside event modal to close
 document.addEventListener('click', function(e) {
   const modal = document.getElementById('eventModal');
-  if (modal && modal.classList.contains('open') && e.target === modal) {
-    closeAddEvent();
-  }
+  if (modal && modal.classList.contains('open') && e.target === modal) closeAddEvent();
 });
 
+// ─── PLANNER ───
+const subjects = [
+  { name:'Math', color:'#4a7c6f', bg:'rgba(74,124,111,0.15)' },
+  { name:'Science', color:'#8b5cf6', bg:'rgba(139,92,246,0.15)' },
+  { name:'English', color:'#3b82f6', bg:'rgba(59,130,246,0.15)' },
+  { name:'SAT', color:'#ef4444', bg:'rgba(239,68,68,0.15)' }
+];
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function toggleDay(btn) { btn.classList.toggle('on'); }
+
+function generatePlan() {
+  const activeDays = Array.from(document.querySelectorAll('.day-check.on')).map(b=>b.textContent);
+  const week = document.getElementById('planWeek');
+  week.innerHTML = '';
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today); monday.setDate(today.getDate() + mondayOffset);
+
+  days.forEach((day, i) => {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const isToday = d.toDateString() === today.toDateString();
+    const isActive = activeDays.includes(day);
+    const col = document.createElement('div');
+    col.className = 'plan-day-col';
+    let blocks = '';
+    if (isActive) {
+      const s1 = subjects[i % subjects.length];
+      const s2 = subjects[(i+2) % subjects.length];
+      blocks = `<div class="plan-block" style="background:${s1.bg};color:${s1.color}">${s1.name}</div>`;
+      if (i % 2 === 0) blocks += `<div class="plan-block" style="background:${s2.bg};color:${s2.color}">${s2.name}</div>`;
+    }
+    col.innerHTML = `
+      <div class="plan-day-label">${day}</div>
+      <div class="day-num${isToday?' today':''}" style="font-size:0.75rem;width:24px;height:24px;margin:0 auto 0.4rem">${d.getDate()}</div>
+      ${blocks || '<div style="height:20px"></div>'}
+    `;
+    week.appendChild(col);
+  });
+}
+
 // ─── CONNECT ───
+function connectApp(app) {
+  // All Google services use the same OAuth flow
+  window.location.href = '/api/google-auth';
+}
+
 async function loadClassroomData() {
   const container = document.getElementById('classroom-data');
   if (!container) return;
@@ -1608,6 +1537,7 @@ async function loadGmailData() {
 function checkGoogleConnectionStatus() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('google_connected') === 'true') {
+    // Mark all google cards as connected
     ['classroom','gmail','calendar','drive'].forEach(app => {
       const card = document.getElementById('card-'+app);
       const btn = document.getElementById('btn-'+app);
@@ -1617,6 +1547,7 @@ function checkGoogleConnectionStatus() {
     loadClassroomData();
     loadGmailData();
     addAIMessage('🎓 <strong>Google connected!</strong> I can now see your Classroom assignments and school emails. Want me to build a study plan around your upcoming deadlines?');
+    // Clean URL
     window.history.replaceState({}, '', '/');
   }
   if (params.get('google_error')) {
