@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearMind — Learn It Your Way</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0d0d0f;
+    --paper: #f5f3ee;
+    --cream: #ede9e0;
+    --sage: #4a7c6f;
+    --sage-light: #6aaa99;
+    --amber: #d4882a;
+    --amber-light: #f0b455;
+    --muted: #7a7870;
+    --border: #dbd7ce;
+    --card: #ffffff;
+    --radius: 16px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .brand {
+    font-family: 'Syne', sans-serif;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2rem;
+    background: var(--paper);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+
+  .brand { font-size: 1.4rem; font-weight: 800; color: var(--ink); text-decoration: none; letter-spacing: -0.03em; }
+  .brand span { color: var(--sage); }
+
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--ink); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.65rem 1.4rem; border-radius: 999px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
+    cursor: pointer; border: none; text-decoration: none; transition: all 0.2s;
+  }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { background: var(--sage); transform: translateY(-1px); }
+  .btn-sage { background: var(--sage); color: #fff; }
+  .btn-sage:hover { background: var(--sage-light); }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--ink); }
+  .btn-outline:hover { border-color: var(--ink); }
+  .btn-google {
+    background: #fff; color: #3c4043; border: 1.5px solid var(--border);
+    font-weight: 500; width: 100%; justify-content: center; padding: 0.8rem;
+    font-size: 0.95rem;
+  }
+  .btn-google:hover { background: #f8f8f8; border-color: #aaa; }
+  .btn-lg { padding: 0.9rem 2rem; font-size: 1rem; }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh; display: flex; align-items: center;
+    padding: 7rem 2rem 4rem;
+    position: relative; overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 20%, rgba(74,124,111,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(212,136,42,0.08) 0%, transparent 70%);
+  }
+
+  .hero-inner {
+    max-width: 1100px; margin: 0 auto; width: 100%;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+    position: relative; z-index: 1;
+  }
+
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--cream); border: 1px solid var(--border);
+    padding: 0.35rem 0.9rem; border-radius: 999px;
+    font-size: 0.8rem; font-weight: 500; color: var(--muted);
+    margin-bottom: 1.5rem;
+  }
+  .hero-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--sage); display: inline-block; }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 5vw, 3.6rem);
+    font-weight: 800; line-height: 1.08; letter-spacing: -0.04em;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 .accent { color: var(--sage); }
+
+  .hero p {
+    font-size: 1.05rem; color: var(--muted); line-height: 1.7;
+    margin-bottom: 2rem; max-width: 440px;
+  }
+
+  .hero-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+  .hero-visual {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.08);
+  }
+
+  .chat-preview-bar {
+    background: var(--cream); padding: 0.8rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.6rem;
+    font-size: 0.8rem; font-weight: 600; font-family: 'Syne', sans-serif;
+  }
+  .chat-preview-bar .avatar {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--sage);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 0.65rem; font-weight: 700;
+  }
+
+  .chat-preview-body { padding: 1.2rem; display: flex; flex-direction: column; gap: 0.8rem; }
+
+  .chat-bubble {
+    padding: 0.7rem 1rem; border-radius: 12px;
+    font-size: 0.85rem; line-height: 1.5; max-width: 85%;
+  }
+  .chat-bubble.user {
+    background: var(--ink); color: #fff; align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-bubble.ai {
+    background: var(--cream); color: var(--ink); align-self: flex-start;
+    border-bottom-left-radius: 4px; border: 1px solid var(--border);
+  }
+  .chat-bubble.ai .highlight { color: var(--sage); font-weight: 500; }
+
+  .typing-dots span {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--muted); margin: 0 2px;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%,60%,100% { transform: translateY(0); }
+    30% { transform: translateY(-5px); }
+  }
+
+  /* ── FEATURES ── */
+  .section { padding: 5rem 2rem; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--sage); margin-bottom: 0.8rem;
+  }
+  .section h2 {
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 800; letter-spacing: -0.03em; line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .section-sub { color: var(--muted); font-size: 1rem; max-width: 520px; margin-bottom: 3rem; }
+
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem;
+  }
+  .feature-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.8rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .feature-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.07); transform: translateY(-2px); }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem; font-size: 1.3rem;
+  }
+  .fi-sage { background: rgba(74,124,111,0.12); }
+  .fi-amber { background: rgba(212,136,42,0.12); }
+  .fi-blue { background: rgba(59,130,246,0.12); }
+  .fi-purple { background: rgba(139,92,246,0.12); }
+  .fi-red { background: rgba(239,68,68,0.12); }
+  .fi-teal { background: rgba(20,184,166,0.12); }
+
+  .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+  .feature-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.6; }
+
+  /* ── APP SECTION ── */
+  .app-section { background: var(--cream); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+  .app-tabs {
+    display: flex; gap: 0.5rem; margin-bottom: 2rem; flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 0.5rem 1.1rem; border-radius: 999px; border: 1.5px solid var(--border);
+    background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.2s;
+  }
+  .tab-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .app-ui {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.06);
+  }
+
+  .app-topbar {
+    background: var(--cream); border-bottom: 1px solid var(--border);
+    padding: 0.8rem 1.4rem; display: flex; align-items: center; justify-content: space-between;
+  }
+  .app-topbar-title { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; }
+  .window-dots { display: flex; gap: 6px; }
+  .window-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .wd-r { background: #ff5f57; } .wd-y { background: #ffbd2e; } .wd-g { background: #28c840; }
+
+  /* Tutor UI */
+  .tutor-layout { display: grid; grid-template-columns: 240px 1fr; min-height: 440px; }
+
+  .tutor-sidebar {
+    border-right: 1px solid var(--border); padding: 1rem;
+    background: var(--paper);
+  }
+  .tutor-sidebar h4 { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); padding: 0.5rem 0.4rem; margin-bottom: 0.3rem; }
+  .subject-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0.6rem; border-radius: 8px; cursor: pointer;
+    font-size: 0.85rem; color: var(--muted); transition: all 0.15s;
+    margin-bottom: 2px;
+  }
+  .subject-item:hover, .subject-item.active { background: var(--cream); color: var(--ink); }
+  .subject-item.active { font-weight: 500; }
+  .subject-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  .tutor-chat { display: flex; flex-direction: column; }
+  .tutor-chat-messages { flex: 1; padding: 1.2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; min-height: 320px; }
+  .tutor-chat-input {
+    border-top: 1px solid var(--border); padding: 0.8rem 1rem;
+    display: flex; gap: 0.6rem; align-items: center;
+  }
+  .tutor-chat-input input {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 999px;
+    padding: 0.55rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    outline: none; background: var(--paper); color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .tutor-chat-input input:focus { border-color: var(--sage); }
+  .send-btn {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--sage);
+    border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 1rem; transition: background 0.2s; flex-shrink: 0;
+  }
+  .send-btn:hover { background: var(--sage-light); }
+
+  /* Planner UI */
+  .planner-layout { padding: 1.4rem; min-height: 440px; }
+  .planner-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
+  .planner-header h3 { font-size: 1rem; font-weight: 700; }
+  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 1.2rem; }
+  .day-col { text-align: center; }
+  .day-label { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; margin-bottom: 0.4rem; }
+  .day-num { font-size: 0.85rem; font-weight: 500; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 0.4rem; }
+  .day-num.today { background: var(--sage); color: #fff; }
+  .session-block {
+    padding: 0.25rem 0.3rem; border-radius: 4px; font-size: 0.65rem;
+    font-weight: 500; margin-bottom: 3px; text-align: left;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sb-math { background: rgba(74,124,111,0.15); color: var(--sage); }
+  .sb-sat { background: rgba(212,136,42,0.15); color: var(--amber); }
+  .sb-eng { background: rgba(59,130,246,0.15); color: #3b82f6; }
+  .sb-sci { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+
+  .upcoming-list { display: flex; flex-direction: column; gap: 0.6rem; }
+  .upcoming-item {
+    display: flex; align-items: center; gap: 0.8rem;
+    background: var(--paper); border: 1px solid var(--border);
+    border-radius: 10px; padding: 0.7rem 0.9rem;
+  }
+  .upcoming-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .upcoming-info { flex: 1; }
+  .upcoming-info .title { font-size: 0.85rem; font-weight: 500; }
+  .upcoming-info .meta { font-size: 0.75rem; color: var(--muted); }
+  .upcoming-time { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+
+  /* Google Connect UI */
+  .connect-layout { padding: 1.4rem; min-height: 440px; }
+  .connect-intro { margin-bottom: 1.5rem; }
+  .connect-intro p { font-size: 0.875rem; color: var(--muted); }
+  .integrations-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .integration-card {
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    padding: 1.2rem; transition: all 0.2s;
+  }
+  .integration-card:hover { border-color: var(--sage); }
+  .integration-card.connected { border-color: var(--sage); background: rgba(74,124,111,0.04); }
+  .int-header { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.8rem; }
+  .int-logo { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+  .int-header h4 { font-size: 0.9rem; font-weight: 600; }
+  .int-desc { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.9rem; line-height: 1.5; }
+  .int-status {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.75rem; font-weight: 500; padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+  }
+  .int-status.connected { background: rgba(74,124,111,0.12); color: var(--sage); }
+  .int-status.connect { background: var(--ink); color: #fff; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; }
+  .int-status.connect:hover { background: var(--sage); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* ── PRICING / CTA ── */
+  .cta-section { text-align: center; padding: 5rem 2rem; }
+  .cta-section h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1rem; }
+  .cta-section p { color: var(--muted); margin-bottom: 2rem; font-size: 1rem; max-width: 400px; margin-left: auto; margin-right: auto; }
+  .cta-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border); padding: 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    color: var(--muted); font-size: 0.8rem;
+  }
+
+  /* ── MODAL (Auth) ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 99999;
+    background: rgba(13,13,15,0.6);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2rem; width: 90%; max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    transform: translateY(16px); transition: transform 0.2s;
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .modal p { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+  .modal-divider { display: flex; align-items: center; gap: 0.8rem; margin: 1.2rem 0; }
+  .modal-divider hr { flex: 1; border: none; border-top: 1px solid var(--border); }
+  .modal-divider span { font-size: 0.75rem; color: var(--muted); }
+  .modal-form { display: flex; flex-direction: column; gap: 0.8rem; }
+  .modal-form input {
+    width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border);
+    border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    outline: none; background: var(--paper); color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .modal-form input:focus { border-color: var(--sage); }
+  .modal-form .btn { width: 100%; justify-content: center; margin-top: 0.3rem; padding: 0.8rem; font-size: 0.95rem; }
+  .modal-switch { text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--muted); }
+  .modal-switch a { color: var(--sage); cursor: pointer; text-decoration: none; font-weight: 500; }
+  .modal-close {
+    position: absolute; top: 1rem; right: 1rem;
+    background: var(--cream); border: none; border-radius: 50%;
+    width: 30px; height: 30px; cursor: pointer; font-size: 1rem;
+    color: var(--muted); display: flex; align-items: center; justify-content: center;
+  }
+  .modal { position: relative; }
+
+  /* ── FULL APP (post-login) ── */
+  #app-view { display: none; flex-direction: column; min-height: 100vh; }
+  #app-view.active { display: flex; }
+  #landing-view.hidden { display: none; }
+
+  .app-nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--paper); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.5rem;
+  }
+  .app-nav-left { display: flex; align-items: center; gap: 2rem; }
+  .app-nav-tabs { display: flex; gap: 0.3rem; }
+  .app-nav-tab {
+    padding: 0.4rem 0.9rem; border-radius: 999px; border: none;
+    background: transparent; font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; font-weight: 500; color: var(--muted); cursor: pointer;
+    transition: all 0.15s;
+  }
+  .app-nav-tab.active { background: var(--ink); color: #fff; }
+  .user-avatar {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--sage);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+  }
+
+  .app-content { flex: 1; padding-top: 60px; }
+  .app-panel { display: none; height: calc(100vh - 60px); }
+  .app-panel.active { display: flex; flex-direction: column; }
+
+  /* ── TUTOR PANEL ── */
+  .full-tutor { display: grid; grid-template-columns: 220px 1fr; height: 100%; }
+  .full-sidebar {
+    border-right: 1px solid var(--border); background: var(--paper);
+    padding: 1rem; overflow-y: auto;
+  }
+  .full-sidebar h4 {
+    font-size: 0.68rem; font-weight: 600; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--muted); padding: 0.5rem 0.4rem;
+    margin-bottom: 0.3rem;
+  }
+  .full-chat { display: flex; flex-direction: column; height: 100%; }
+  .full-chat-messages {
+    flex: 1; overflow-y: auto; padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1.2rem;
+  }
+  .full-chat-input {
+    border-top: 1px solid var(--border); padding: 1rem 1.2rem;
+    display: flex; gap: 0.6rem; align-items: flex-end; background: var(--paper);
+  }
+  .full-chat-input textarea {
+    flex: 1; border: 1.5px solid var(--border); border-radius: 14px;
+    padding: 0.7rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    outline: none; background: var(--card); color: var(--ink); resize: none;
+    transition: border-color 0.2s; min-height: 44px; max-height: 120px;
+    line-height: 1.5;
+  }
+  .full-chat-input textarea:focus { border-color: var(--sage); }
+
+  .msg { display: flex; gap: 0.8rem; max-width: 80%; }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+  .msg-avatar {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700; margin-top: 2px;
+  }
+  .msg-avatar.ai { background: var(--sage); color: #fff; }
+  .msg-avatar.user { background: var(--ink); color: #fff; }
+  .msg-bubble {
+    padding: 0.8rem 1.1rem; border-radius: 14px; font-size: 0.9rem; line-height: 1.65;
+  }
+  .msg.user .msg-bubble { background: var(--ink); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.ai .msg-bubble { background: var(--card); border: 1px solid var(--border); color: var(--ink); border-bottom-left-radius: 4px; }
+  .msg.ai .msg-bubble strong { color: var(--sage); }
+  .msg-name { font-size: 0.7rem; color: var(--muted); margin-bottom: 0.25rem; }
+  .msg.user .msg-name { text-align: right; }
+
+  .typing-indicator { display: flex; gap: 4px; padding: 0.8rem 1.1rem; background: var(--card); border: 1px solid var(--border); border-radius: 14px; border-bottom-left-radius: 4px; width: fit-content; }
+  .typing-indicator span { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: bounce 1.2s infinite; }
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+  /* ── PLANNER PANEL ── */
+  .planner-panel { padding: 1.5rem; overflow-y: auto; }
+  .planner-panel h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .planner-panel .sub { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+
+  .schedule-form {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.4rem; margin-bottom: 1.5rem;
+  }
+  .schedule-form h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 0.8rem; }
+  .form-group label { font-size: 0.78rem; font-weight: 500; color: var(--muted); display: block; margin-bottom: 0.3rem; }
+  .form-group select, .form-group input[type=time], .form-group input[type=number] {
+    width: 100%; padding: 0.55rem 0.8rem; border: 1.5px solid var(--border);
+    border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.875rem;
+    outline: none; background: var(--paper); color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .form-group select:focus, .form-group input:focus { border-color: var(--sage); }
+  .checkboxes { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .day-check {
+    padding: 0.3rem 0.7rem; border-radius: 999px; border: 1.5px solid var(--border);
+    background: transparent; font-family: 'DM Sans', sans-serif; font-size: 0.78rem;
+    font-weight: 500; cursor: pointer; color: var(--muted); transition: all 0.15s;
+  }
+  .day-check.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .plan-output {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.4rem;
+  }
+  .plan-output h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 1rem; }
+  .plan-week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.4rem; }
+  .plan-day-col .plan-day-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: var(--muted); text-align: center; margin-bottom: 0.3rem; }
+  .plan-block {
+    padding: 0.3rem 0.35rem; border-radius: 5px; font-size: 0.62rem;
+    font-weight: 500; margin-bottom: 3px; text-align: center; cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .plan-block:hover { opacity: 0.75; }
+
+  /* ── CONNECT PANEL ── */
+  .connect-panel { padding: 1.5rem; overflow-y: auto; }
+  .connect-panel h2 { font-size: 1.3rem; font-weight: 800; margin-bottom: 0.3rem; }
+  .connect-panel .sub { color: var(--muted); font-size: 0.875rem; margin-bottom: 1.5rem; }
+  .integrations-full { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; max-width: 700px; }
+  .int-card-full {
+    background: var(--card); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 1.4rem; transition: all 0.2s;
+  }
+  .int-card-full.connected { border-color: var(--sage); }
+  .int-card-full:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  .int-card-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.7rem; }
+  .int-card-logo { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  .int-card-header h4 { font-size: 0.95rem; font-weight: 700; }
+  .int-card-full p { font-size: 0.82rem; color: var(--muted); line-height: 1.55; margin-bottom: 1rem; }
+  .connected-badge {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    background: rgba(74,124,111,0.12); color: var(--sage);
+    font-size: 0.75rem; font-weight: 600; padding: 0.25rem 0.7rem; border-radius: 999px;
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-content > * { animation: fadeUp 0.6s ease both; }
+  .hero-content > *:nth-child(1) { animation-delay: 0.1s; }
+  .hero-content > *:nth-child(2) { animation-delay: 0.2s; }
+  .hero-content > *:nth-child(3) { animation-delay: 0.3s; }
+  .hero-content > *:nth-child(4) { animation-delay: 0.4s; }
+  .hero-visual { animation: fadeUp 0.7s 0.3s ease both; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .features-grid { grid-template-columns: 1fr; }
+    .tutor-layout { grid-template-columns: 1fr; }
+    .tutor-sidebar { display: none; }
+    .integrations-grid { grid-template-columns: 1fr; }
+    .full-tutor { grid-template-columns: 1fr; }
+    .full-sidebar { display: none; }
+    .integrations-full { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    nav .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════ LANDING VIEW ════════════════════ -->
+<div id="landing-view">
+
+  <nav>
+    <a class="brand" href="#">Clear<span>Mind</span></a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div style="display:flex;gap:0.6rem">
+      <button class="btn btn-outline" onclick="openModal('login')">Sign in</button>
+      <button class="btn btn-primary" onclick="openModal('signup')">Get started free</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-tag"><span class="dot"></span> AI Tutor · Study Planner · SAT Prep</div>
+        <h1>Learn anything.<br><span class="accent">Your way.</span><br>On your time.</h1>
+        <p>ClearMind is your personal AI tutor that explains concepts in words you actually understand, builds your study schedule around your life, and connects to Google Classroom so nothing slips through.</p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Start learning free →</button>
+          <button class="btn btn-outline btn-lg" onclick="scrollToSection('features')">See how it works</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="chat-preview-bar">
+          <div class="avatar">CM</div>
+          ClearMind Tutor
+        </div>
+        <div class="chat-preview-body">
+          <div class="chat-bubble user">I don't get how to solve quadratic equations 😩</div>
+          <div class="chat-bubble ai">No stress! Think of a quadratic like a parabola you're trying to "crack open." <span class="highlight">Every equation ax²+bx+c=0 has two spots where it crosses zero</span> — those are your answers. The easiest way to find them: the quadratic formula. Want me to walk you through it step by step with your own numbers?</div>
+          <div class="chat-bubble user">Yes please, use x²+5x+6=0</div>
+          <div class="chat-bubble ai" style="min-width:200px">
+            <div class="typing-dots"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <div class="section-inner">
+      <div class="section-label">What makes ClearMind different</div>
+      <h2>Not just answers.<br>Real understanding.</h2>
+      <p class="section-sub">ClearMind explains concepts the way your brain learns — using your language, examples from your life, and a pace that works for you.</p>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon fi-sage">🧠</div>
+          <h3>Teaches, doesn't just answer</h3>
+          <p>Instead of giving you the answer, ClearMind walks you through the concept with examples that click for you specifically.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-amber">📅</div>
+          <h3>Smart study planner</h3>
+          <p>Tell us when you're free and we'll build a study schedule around your life — synced with your Google Calendar.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-blue">🎓</div>
+          <h3>Google Classroom sync</h3>
+          <p>Connect your Classroom so ClearMind knows your assignments, due dates, and upcoming tests automatically.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-purple">✉️</div>
+          <h3>Gmail integration</h3>
+          <p>Spot teacher emails about assignments or schedule changes and pull them right into your study plan.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-red">📊</div>
+          <h3>SAT · ACT prep</h3>
+          <p>Targeted practice for math, reading, and writing sections. ClearMind adapts to your weak spots over time.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon fi-teal">💬</div>
+          <h3>Your language, your pace</h3>
+          <p>If you don't get it the first time, just say so. ClearMind tries a different angle until it clicks.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP PREVIEW -->
+  <section class="section app-section" id="how">
+    <div class="section-inner">
+      <div class="section-label">See it in action</div>
+      <h2>Everything you need,<br>in one place.</h2>
+      <p class="section-sub">Switch between your AI tutor, study planner, and connected apps — all in one dashboard.</p>
+
+      <div class="app-tabs">
+        <button class="tab-btn active" onclick="showPreviewTab(this,'preview-tutor')">AI Tutor</button>
+        <button class="tab-btn" onclick="showPreviewTab(this,'preview-planner')">Study Planner</button>
+        <button class="tab-btn" onclick="showPreviewTab(this,'preview-connect')">Google Connect</button>
+      </div>
+
+      <div class="app-ui">
+        <div class="app-topbar">
+          <div class="window-dots">
+            <div class="window-dot wd-r"></div>
+            <div class="window-dot wd-y"></div>
+            <div class="window-dot wd-g"></div>
+          </div>
+          <div class="app-topbar-title">ClearMind</div>
+          <div style="width:52px"></div>
+        </div>
+
+        <!-- Preview: Tutor -->
+        <div id="preview-tutor" class="preview-panel" style="display:block">
+          <div class="tutor-layout">
+            <div class="tutor-sidebar">
+              <h4>Subjects</h4>
+              <div class="subject-item active"><span class="subject-dot" style="background:#4a7c6f"></span> Math</div>
+              <div class="subject-item"><span class="subject-dot" style="background:#3b82f6"></span> Science</div>
+              <div class="subject-item"><span class="subject-dot" style="background:#8b5cf6"></span> English</div>
+              <div class="subject-item"><span class="subject-dot" style="background:#d4882a"></span> History</div>
+              <div class="subject-item"><span class="subject-dot" style="background:#ef4444"></span> SAT Prep</div>
+            </div>
+            <div class="tutor-chat">
+              <div class="tutor-chat-messages">
+                <div class="chat-bubble ai">Hey! I'm your ClearMind tutor. What are we working on today?</div>
+                <div class="chat-bubble user">Can you help me understand the Pythagorean theorem?</div>
+                <div class="chat-bubble ai">Of course! Imagine a right triangle like a ramp. The two shorter sides (legs) are your everyday distances — like walking 3 blocks east and 4 blocks north. The longest side (hypotenuse) is the shortcut across. <span class="highlight">a² + b² = c²</span> tells you exactly how long that shortcut is. So 3²+4² = 9+16 = 25, meaning c = 5. Want to try one?</div>
+              </div>
+              <div class="tutor-chat-input">
+                <input type="text" placeholder="Ask anything..." readonly>
+                <button class="send-btn">→</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview: Planner -->
+        <div id="preview-planner" class="preview-panel" style="display:none">
+          <div class="planner-layout">
+            <div class="planner-header">
+              <h3>Your Study Schedule — Week of Apr 2</h3>
+              <button class="btn btn-sage" style="font-size:0.78rem;padding:0.4rem 0.9rem">+ Add session</button>
+            </div>
+            <div class="week-grid">
+              <div class="day-col"><div class="day-label">Mon</div><div class="day-num">31</div><div class="session-block sb-math">Math 4pm</div></div>
+              <div class="day-col"><div class="day-label">Tue</div><div class="day-num">1</div><div class="session-block sb-sat">SAT 5pm</div><div class="session-block sb-eng">Eng 7pm</div></div>
+              <div class="day-col"><div class="day-label">Wed</div><div class="day-num today">2</div><div class="session-block sb-sci">Sci 4pm</div></div>
+              <div class="day-col"><div class="day-label">Thu</div><div class="day-num">3</div><div class="session-block sb-math">Math 6pm</div></div>
+              <div class="day-col"><div class="day-label">Fri</div><div class="day-num">4</div><div class="session-block sb-sat">SAT 4pm</div></div>
+              <div class="day-col"><div class="day-label">Sat</div><div class="day-num">5</div><div class="session-block sb-eng">Eng 10am</div><div class="session-block sb-math">Math 2pm</div></div>
+              <div class="day-col"><div class="day-label">Sun</div><div class="day-num">6</div></div>
+            </div>
+            <div class="upcoming-list">
+              <div class="upcoming-item"><div class="upcoming-dot" style="background:#4a7c6f"></div><div class="upcoming-info"><div class="title">Algebra — Quadratic Functions</div><div class="meta">Math · 45 min session</div></div><div class="upcoming-time">Today 4pm</div></div>
+              <div class="upcoming-item"><div class="upcoming-dot" style="background:#ef4444"></div><div class="upcoming-info"><div class="title">SAT Math Practice Test 3</div><div class="meta">SAT Prep · 60 min session</div></div><div class="upcoming-time">Fri 4pm</div></div>
+              <div class="upcoming-item"><div class="upcoming-dot" style="background:#8b5cf6"></div><div class="upcoming-info"><div class="title">Essay Structure Review</div><div class="meta">English · 30 min session</div></div><div class="upcoming-time">Sat 10am</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview: Connect -->
+        <div id="preview-connect" class="preview-panel" style="display:none">
+          <div class="connect-layout">
+            <div class="connect-intro"><h3 style="font-size:1rem;font-weight:700;margin-bottom:0.3rem">Connect your Google apps</h3><p>Give ClearMind access to your school tools so it can see your assignments, due dates, and schedule automatically.</p></div>
+            <div class="integrations-grid">
+              <div class="integration-card connected">
+                <div class="int-header"><div class="int-logo" style="background:#e8f5e9">📚</div><h4>Google Classroom</h4></div>
+                <div class="int-desc">Pulls your assignments, due dates, and class announcements automatically.</div>
+                <span class="int-status connected"><span class="status-dot"></span> Connected</span>
+              </div>
+              <div class="integration-card connected">
+                <div class="int-header"><div class="int-logo" style="background:#e3f2fd">✉️</div><h4>Gmail</h4></div>
+                <div class="int-desc">Scans teacher emails for assignments, schedule changes, and reminders.</div>
+                <span class="int-status connected"><span class="status-dot"></span> Connected</span>
+              </div>
+              <div class="integration-card">
+                <div class="int-header"><div class="int-logo" style="background:#fce4ec">📅</div><h4>Google Calendar</h4></div>
+                <div class="int-desc">Adds your study sessions so they live alongside your other events.</div>
+                <button class="int-status connect">+ Connect</button>
+              </div>
+              <div class="integration-card">
+                <div class="int-header"><div class="int-logo" style="background:#f3e5f5">📄</div><h4>Google Drive</h4></div>
+                <div class="int-desc">Upload notes and docs for ClearMind to study from directly.</div>
+                <button class="int-status connect">+ Connect</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="pricing">
+    <div class="section-label" style="display:block;text-align:center;margin-bottom:0.8rem">Free to start</div>
+    <h2>Your grades aren't going<br>to fix themselves. 😄</h2>
+    <p>Start free — no credit card, no setup. Just smarter studying.</p>
+    <div class="cta-actions">
+      <button class="btn btn-primary btn-lg" onclick="openModal('signup')">Create free account →</button>
+    </div>
+  </section>
+
+  <footer>
+    <span class="brand" style="font-size:1rem">Clear<span>Mind</span></span>
+    <span>© 2026 ClearMind. Built for students, by students.</span>
+  </footer>
+
+</div>
+<!-- END LANDING -->
+
+
+<!-- ════════════════════ AUTH MODAL ════════════════════ -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-login">
+      <h2>Welcome back</h2>
+      <p>Sign in to your ClearMind account</p>
+      <button class="btn btn-google" onclick="demoGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+      <div class="modal-divider"><hr><span>or</span><hr></div>
+      <div class="modal-form">
+        <input type="email" placeholder="Email address" id="login-email">
+        <input type="password" placeholder="Password" id="login-pass">
+        <button class="btn btn-primary" onclick="demoLogin()">Sign in</button>
+      </div>
+      <p class="modal-switch">Don't have an account? <a onclick="switchModal('signup')">Sign up free</a></p>
+    </div>
+    <div id="modal-signup" style="display:none">
+      <h2>Get started free</h2>
+      <p>Create your ClearMind account</p>
+      <button class="btn btn-google" onclick="demoGoogleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Sign up with Google
+      </button>
+      <div class="modal-divider"><hr><span>or</span><hr></div>
+      <div class="modal-form">
+        <input type="text" placeholder="Your name" id="signup-name">
+        <input type="email" placeholder="Email address" id="signup-email">
+        <input type="password" placeholder="Create password" id="signup-pass">
+        <button class="btn btn-primary" onclick="demoLogin()">Create account</button>
+      </div>
+      <p class="modal-switch">Already have an account? <a onclick="switchModal('login')">Sign in</a></p>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════ APP VIEW ════════════════════ -->
+<div id="app-view">
+  <nav class="app-nav">
+    <div class="app-nav-left">
+      <a class="brand" href="#" onclick="goLanding()">Clear<span>Mind</span></a>
+      <div class="app-nav-tabs">
+        <button class="app-nav-tab active" onclick="switchAppTab(this,'panel-tutor')">🧠 Tutor</button>
+        <button class="app-nav-tab" onclick="switchAppTab(this,'panel-planner')">📅 Planner</button>
+        <button class="app-nav-tab" onclick="switchAppTab(this,'panel-connect')">🔗 Connect</button>
+      </div>
+    </div>
+    <div class="user-avatar" id="userAvatar">S</div>
+  </nav>
+
+  <div class="app-content">
+
+    <!-- ── TUTOR PANEL ── -->
+    <div class="app-panel active" id="panel-tutor">
+      <div class="full-tutor">
+        <div class="full-sidebar">
+          <h4>Subjects</h4>
+          <div class="subject-item active" onclick="setSubject(this,'Math','#4a7c6f')"><span class="subject-dot" style="background:#4a7c6f"></span> Math</div>
+          <div class="subject-item" onclick="setSubject(this,'Science','#3b82f6')"><span class="subject-dot" style="background:#3b82f6"></span> Science</div>
+          <div class="subject-item" onclick="setSubject(this,'English','#8b5cf6')"><span class="subject-dot" style="background:#8b5cf6"></span> English</div>
+          <div class="subject-item" onclick="setSubject(this,'History','#d4882a')"><span class="subject-dot" style="background:#d4882a"></span> History</div>
+          <div class="subject-item" onclick="setSubject(this,'SAT Prep','#ef4444')"><span class="subject-dot" style="background:#ef4444"></span> SAT Prep</div>
+          <div class="subject-item" onclick="setSubject(this,'ACT Prep','#14b8a6')"><span class="subject-dot" style="background:#14b8a6"></span> ACT Prep</div>
+          <br>
+          <h4>Recent</h4>
+          <div class="subject-item" style="font-size:0.78rem">Quadratic equations</div>
+          <div class="subject-item" style="font-size:0.78rem">Cell biology</div>
+          <div class="subject-item" style="font-size:0.78rem">Essay structure</div>
+        </div>
+        <div class="full-chat">
+          <div class="full-chat-messages" id="chatMessages">
+            <div class="msg ai">
+              <div class="msg-avatar ai">CM</div>
+              <div>
+                <div class="msg-name">ClearMind</div>
+                <div class="msg-bubble">Hey! 👋 I'm your ClearMind tutor. I'm here to actually <strong>teach you</strong> — not just hand you answers. What subject are we tackling today, and what's giving you trouble?</div>
+              </div>
+            </div>
+          </div>
+          <div class="full-chat-input">
+            <textarea id="chatInput" placeholder="Ask a question or paste your homework problem..." rows="1"
+              onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" onclick="sendMessage()" style="width:42px;height:42px;font-size:1.1rem;flex-shrink:0">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PLANNER PANEL ── -->
+    <div class="app-panel" id="panel-planner">
+      <div class="planner-panel">
+        <h2>Study Planner</h2>
+        <p class="sub">Tell me your schedule and I'll build a study plan that actually works for your life.</p>
+
+        <div class="schedule-form">
+          <h3>⚙️ Set your availability</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>School ends at</label>
+              <input type="time" id="schoolEnd" value="15:00">
+            </div>
+            <div class="form-group">
+              <label>Bedtime</label>
+              <input type="time" id="bedtime" value="23:00">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Daily study goal (hrs)</label>
+              <input type="number" id="studyHours" value="2" min="0.5" max="8" step="0.5">
+            </div>
+            <div class="form-group">
+              <label>Upcoming test</label>
+              <input type="text" id="upcomingTest" placeholder="e.g. SAT on Apr 12" style="padding:0.55rem 0.8rem;border:1.5px solid var(--border);border-radius:8px;font-family:DM Sans,sans-serif;font-size:0.875rem;outline:none;background:var(--paper);color:var(--ink);width:100%">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem">
+            <label>Study days</label>
+            <div class="checkboxes" id="dayChecks">
+              <button class="day-check on" onclick="toggleDay(this)">Mon</button>
+              <button class="day-check on" onclick="toggleDay(this)">Tue</button>
+              <button class="day-check on" onclick="toggleDay(this)">Wed</button>
+              <button class="day-check on" onclick="toggleDay(this)">Thu</button>
+              <button class="day-check on" onclick="toggleDay(this)">Fri</button>
+              <button class="day-check" onclick="toggleDay(this)">Sat</button>
+              <button class="day-check" onclick="toggleDay(this)">Sun</button>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="generatePlan()">✨ Generate my plan</button>
+        </div>
+
+        <div class="plan-output" id="planOutput">
+          <h3>📅 Your week — Apr 2–8</h3>
+          <div class="plan-week" id="planWeek"></div>
+          <div style="margin-top:1rem;padding:0.8rem;background:rgba(74,124,111,0.07);border-radius:10px;font-size:0.82rem;color:var(--muted)">
+            <strong style="color:var(--sage)">💡 ClearMind tip:</strong> Studying in 45-min blocks with 10-min breaks is scientifically proven to improve retention. Your plan follows this automatically.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CONNECT PANEL ── -->
+    <div class="app-panel" id="panel-connect">
+      <div class="connect-panel">
+        <h2>Connect your apps</h2>
+        <p class="sub">Link your Google tools so ClearMind knows your assignments, emails, and schedule without you having to type it all in.</p>
+
+        <div class="integrations-full">
+          <div class="int-card-full" id="card-classroom">
+            <div class="int-card-header">
+              <div class="int-card-logo" style="background:#e8f5e9">📚</div>
+              <h4>Google Classroom</h4>
+            </div>
+            <p>Automatically pulls your assignments, due dates, class announcements, and upcoming tests. ClearMind uses this to prioritize what you study first.</p>
+            <button class="btn btn-primary" id="btn-classroom" onclick="connectApp('classroom')" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Classroom</button>
+          </div>
+
+          <div class="int-card-full" id="card-gmail">
+            <div class="int-card-header">
+              <div class="int-card-logo" style="background:#fce4ec">✉️</div>
+              <h4>Gmail</h4>
+            </div>
+            <p>Scans your school emails for assignment details, schedule changes, and teacher announcements — then adds them to your study plan.</p>
+            <button class="btn btn-primary" id="btn-gmail" onclick="connectApp('gmail')" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Gmail</button>
+          </div>
+
+          <div class="int-card-full" id="card-calendar">
+            <div class="int-card-header">
+              <div class="int-card-logo" style="background:#e3f2fd">📅</div>
+              <h4>Google Calendar</h4>
+            </div>
+            <p>Adds your ClearMind study sessions directly to Google Calendar so everything lives in one place and you get reminders.</p>
+            <button class="btn btn-primary" id="btn-calendar" onclick="connectApp('calendar')" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Calendar</button>
+          </div>
+
+          <div class="int-card-full" id="card-drive">
+            <div class="int-card-header">
+              <div class="int-card-logo" style="background:#f3e5f5">📄</div>
+              <h4>Google Drive</h4>
+            </div>
+            <p>Upload notes, textbook pages, or study guides from your Drive and ClearMind will use them to teach you the material directly.</p>
+            <button class="btn btn-primary" id="btn-drive" onclick="connectApp('drive')" style="font-size:0.85rem;padding:0.55rem 1.2rem">Connect Drive</button>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;padding:1rem 1.2rem;background:rgba(212,136,42,0.08);border:1px solid rgba(212,136,42,0.2);border-radius:12px;font-size:0.82rem;color:var(--muted);max-width:700px">
+          <strong style="color:var(--amber)">🔒 Privacy note:</strong> ClearMind only reads — never edits or deletes — your Google data. You can disconnect any app at any time. Your data is never sold or shared.
+        </div>
+
+        <div style="margin-top:1.5rem;max-width:700px">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:0.8rem">📚 Upcoming Assignments</h3>
+          <div id="classroom-data" class="upcoming-list">
+            <p style="color:var(--muted);font-size:0.85rem">Connect Google Classroom above to see your assignments.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:1.5rem;max-width:700px">
+          <h3 style="font-size:0.95rem;font-weight:700;margin-bottom:0.8rem">✉️ Recent School Emails</h3>
+          <div id="gmail-data" class="upcoming-list">
+            <p style="color:var(--muted);font-size:0.85rem">Connect Gmail above to see school emails.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script>
+// ─── STATE ───
+let currentSubject = 'Math';
+let userName = 'Student';
+// API key is securely stored server-side in Netlify environment variables
+
+// ─── LANDING HELPERS ───
+function scrollToSection(id) { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); }
+
+function showPreviewTab(btn, panelId) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.preview-panel').forEach(p=>p.style.display='none');
+  btn.classList.add('active');
+  document.getElementById(panelId).style.display='block';
+}
+
+// ─── AUTH ───
+function openModal(type) {
+  console.log('openModal called with:', type);
+  const modal = document.getElementById('authModal');
+  if (!modal) { console.error('authModal not found!'); return; }
+  modal.classList.add('open');
+  switchModal(type);
+  console.log('Modal classes:', modal.className);
+}
+function closeModal() { document.getElementById('authModal').classList.remove('open'); }
+function switchModal(type) {
+  document.getElementById('modal-login').style.display = type==='login' ? 'block' : 'none';
+  document.getElementById('modal-signup').style.display = type==='signup' ? 'block' : 'none';
+}
+function demoLogin() {
+  const name = document.getElementById('signup-name')?.value || document.getElementById('login-email')?.value.split('@')[0] || 'Student';
+  enterApp(name || 'Student');
+}
+function demoGoogleLogin() { enterApp('Student'); }
+
+function enterApp(name) {
+  userName = name || 'Student';
+  const initials = userName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('userAvatar').textContent = initials;
+  closeModal();
+  document.getElementById('landing-view').classList.add('hidden');
+  document.getElementById('app-view').classList.add('active');
+  generatePlan();
+  setTimeout(checkGoogleConnectionStatus, 300);
+}
+
+function goLanding() {
+  document.getElementById('app-view').classList.remove('active');
+  document.getElementById('landing-view').classList.remove('hidden');
+}
+
+// ─── APP NAV ───
+function switchAppTab(btn, panelId) {
+  document.querySelectorAll('.app-nav-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.app-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+function setSubject(el, subject, color) {
+  document.querySelectorAll('.full-sidebar .subject-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  currentSubject = subject;
+  addAIMessage(`Switched to <strong>${subject}</strong>. What do you need help with in ${subject}? You can ask me anything — homework problems, concepts, test prep, or just something you didn't understand in class.`);
+}
+
+// ─── CHAT ───
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = ''; input.style.height = 'auto';
+  addUserMessage(text);
+  showTyping();
+  callClearMindAI(text);
+}
+
+function addUserMessage(text) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `<div class="msg-avatar user">${userName[0]?.toUpperCase()||'S'}</div><div><div class="msg-name" style="text-align:right">You</div><div class="msg-bubble">${escHtml(text)}</div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addAIMessage(html) {
+  removeTyping();
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.innerHTML = `<div class="msg-avatar ai">CM</div><div><div class="msg-name">ClearMind</div><div class="msg-bubble">${html}</div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ai'; div.id = 'typing-msg';
+  div.innerHTML = `<div class="msg-avatar ai">CM</div><div><div class="msg-name">ClearMind</div><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  document.getElementById('typing-msg')?.remove();
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function callClearMindAI(userMessage) {
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMessage, subject: currentSubject })
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(()=>({}));
+      addAIMessage('Error ' + response.status + ': ' + (err.error || 'Something went wrong. Try again.'));
+      return;
+    }
+    const data = await response.json();
+    if (data.reply) {
+      const html = data.reply
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+      addAIMessage(html);
+    } else {
+      addAIMessage('No response received. Please try again.');
+    }
+  } catch (err) {
+    console.error('Chat error:', err);
+    addAIMessage('Connection error. Make sure you are on the deployed Netlify URL, not a local file.');
+  }
+}
+
+// ─── PLANNER ───
+const subjects = [
+  { name:'Math', color:'#4a7c6f', bg:'rgba(74,124,111,0.15)' },
+  { name:'Science', color:'#8b5cf6', bg:'rgba(139,92,246,0.15)' },
+  { name:'English', color:'#3b82f6', bg:'rgba(59,130,246,0.15)' },
+  { name:'SAT', color:'#ef4444', bg:'rgba(239,68,68,0.15)' }
+];
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function toggleDay(btn) { btn.classList.toggle('on'); }
+
+function generatePlan() {
+  const activeDays = Array.from(document.querySelectorAll('.day-check.on')).map(b=>b.textContent);
+  const week = document.getElementById('planWeek');
+  week.innerHTML = '';
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today); monday.setDate(today.getDate() + mondayOffset);
+
+  days.forEach((day, i) => {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const isToday = d.toDateString() === today.toDateString();
+    const isActive = activeDays.includes(day);
+    const col = document.createElement('div');
+    col.className = 'plan-day-col';
+    let blocks = '';
+    if (isActive) {
+      const s1 = subjects[i % subjects.length];
+      const s2 = subjects[(i+2) % subjects.length];
+      blocks = `<div class="plan-block" style="background:${s1.bg};color:${s1.color}">${s1.name}</div>`;
+      if (i % 2 === 0) blocks += `<div class="plan-block" style="background:${s2.bg};color:${s2.color}">${s2.name}</div>`;
+    }
+    col.innerHTML = `
+      <div class="plan-day-label">${day}</div>
+      <div class="day-num${isToday?' today':''}" style="font-size:0.75rem;width:24px;height:24px;margin:0 auto 0.4rem">${d.getDate()}</div>
+      ${blocks || '<div style="height:20px"></div>'}
+    `;
+    week.appendChild(col);
+  });
+}
+
+// ─── CONNECT ───
+function connectApp(app) {
+  // All Google services use the same OAuth flow
+  window.location.href = '/api/google-auth';
+}
+
+async function loadClassroomData() {
+  const container = document.getElementById('classroom-data');
+  if (!container) return;
+  container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Loading assignments...</p>';
+  try {
+    const res = await fetch('/api/classroom');
+    if (res.status === 401) { container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Connect Google Classroom above to see your assignments.</p>'; return; }
+    const data = await res.json();
+    if (data.error) { container.innerHTML = `<p style="color:var(--muted);font-size:0.85rem">${data.error}</p>`; return; }
+    if (!data.assignments || data.assignments.length === 0) {
+      container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No upcoming assignments found.</p>'; return;
+    }
+    container.innerHTML = data.assignments.map(a => `
+      <div class="upcoming-item">
+        <div class="upcoming-dot" style="background:var(--sage)"></div>
+        <div class="upcoming-info">
+          <div class="title">${a.title}</div>
+          <div class="meta">${a.course}</div>
+        </div>
+        <div class="upcoming-time">${a.dueText}</div>
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Could not load assignments.</p>';
+  }
+}
+
+async function loadGmailData() {
+  const container = document.getElementById('gmail-data');
+  if (!container) return;
+  container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Loading emails...</p>';
+  try {
+    const res = await fetch('/api/gmail');
+    if (res.status === 401) { container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Connect Gmail above to see school emails.</p>'; return; }
+    const data = await res.json();
+    if (!data.emails || data.emails.length === 0) { container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No recent school emails found.</p>'; return; }
+    container.innerHTML = data.emails.map(e => `
+      <div class="upcoming-item">
+        <div class="upcoming-dot" style="background:var(--amber)"></div>
+        <div class="upcoming-info">
+          <div class="title">${e.subject}</div>
+          <div class="meta">${e.from}</div>
+        </div>
+        <div class="upcoming-time">${e.date}</div>
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Could not load emails.</p>';
+  }
+}
+
+function checkGoogleConnectionStatus() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('google_connected') === 'true') {
+    // Mark all google cards as connected
+    ['classroom','gmail','calendar','drive'].forEach(app => {
+      const card = document.getElementById('card-'+app);
+      const btn = document.getElementById('btn-'+app);
+      if (card) card.classList.add('connected');
+      if (btn) btn.outerHTML = '<span class="connected-badge"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span> Connected</span>';
+    });
+    loadClassroomData();
+    loadGmailData();
+    addAIMessage('🎓 <strong>Google connected!</strong> I can now see your Classroom assignments and school emails. Want me to build a study plan around your upcoming deadlines?');
+    // Clean URL
+    window.history.replaceState({}, '', '/');
+  }
+  if (params.get('google_error')) {
+    const err = params.get('google_error');
+    if (err !== 'not_configured') {
+      addAIMessage('⚠️ Google connection failed: ' + err + '. Please try again.');
+    }
+    window.history.replaceState({}, '', '/');
+  }
+}
+</script>
+</body>
+</html>
