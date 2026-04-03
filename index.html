@@ -977,131 +977,278 @@
 
 
 <script>
-const { google } = require('googleapis');
+// ─── STATE ───
+let currentSubject = 'Math';
+let userName = 'Student';
+// API key is securely stored server-side in Netlify environment variables
 
-// Helper to get OAuth2 client
-function getOAuth2Client() {
-  return new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI
-  );
+// ─── LANDING HELPERS ───
+function scrollToSection(id) { document.getElementById(id)?.scrollIntoView({behavior:'smooth'}); }
+
+function showPreviewTab(btn, panelId) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.preview-panel').forEach(p=>p.style.display='none');
+  btn.classList.add('active');
+  document.getElementById(panelId).style.display='block';
 }
 
-// Helper to get calendar with credentials
-function getCalendar(tokens) {
-  const oauth2Client = getOAuth2Client();
-  oauth2Client.setCredentials(tokens);
-  return google.calendar({ version: 'v3', auth: oauth2Client });
+// ─── AUTH ───
+function openModal(type) {
+  console.log('openModal called with:', type);
+  const modal = document.getElementById('authModal');
+  if (!modal) { console.error('authModal not found!'); return; }
+  modal.classList.add('open');
+  switchModal(type);
+  console.log('Modal classes:', modal.className);
+}
+function closeModal() { document.getElementById('authModal').classList.remove('open'); }
+function switchModal(type) {
+  document.getElementById('modal-login').style.display = type==='login' ? 'block' : 'none';
+  document.getElementById('modal-signup').style.display = type==='signup' ? 'block' : 'none';
+}
+function demoLogin() {
+  const name = document.getElementById('signup-name')?.value || document.getElementById('login-email')?.value.split('@')[0] || 'Student';
+  enterApp(name || 'Student');
+}
+function demoGoogleLogin() { enterApp('Student'); }
+
+function enterApp(name) {
+  userName = name || 'Student';
+  const initials = userName.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('userAvatar').textContent = initials;
+  closeModal();
+  document.getElementById('landing-view').classList.add('hidden');
+  document.getElementById('app-view').classList.add('active');
+  generatePlan();
+  setTimeout(checkGoogleConnectionStatus, 300);
 }
 
-exports.handler = async (event, context) => {
-  // Only allow POST requests
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) };
-  }
+function goLanding() {
+  document.getElementById('app-view').classList.remove('active');
+  document.getElementById('landing-view').classList.remove('hidden');
+}
 
+// ─── APP NAV ───
+function switchAppTab(btn, panelId) {
+  document.querySelectorAll('.app-nav-tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.app-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(panelId).classList.add('active');
+}
+
+function setSubject(el, subject, color) {
+  document.querySelectorAll('.full-sidebar .subject-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  currentSubject = subject;
+  addAIMessage(`Switched to <strong>${subject}</strong>. What do you need help with in ${subject}? You can ask me anything — homework problems, concepts, test prep, or just something you didn't understand in class.`);
+}
+
+// ─── CHAT ───
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = ''; input.style.height = 'auto';
+  addUserMessage(text);
+  showTyping();
+  callClearMindAI(text);
+}
+
+function addUserMessage(text) {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `<div class="msg-avatar user">${userName[0]?.toUpperCase()||'S'}</div><div><div class="msg-name" style="text-align:right">You</div><div class="msg-bubble">${escHtml(text)}</div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addAIMessage(html) {
+  removeTyping();
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.innerHTML = `<div class="msg-avatar ai">CM</div><div><div class="msg-name">ClearMind</div><div class="msg-bubble">${html}</div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ai'; div.id = 'typing-msg';
+  div.innerHTML = `<div class="msg-avatar ai">CM</div><div><div class="msg-name">ClearMind</div><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  document.getElementById('typing-msg')?.remove();
+}
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function callClearMindAI(userMessage) {
   try {
-    const body = JSON.parse(event.body);
-    const { action, events, tokens } = body;
-
-    if (!tokens || !tokens.access_token) {
-      return {
-        statusCode: 401,
-        body: JSON.stringify({ error: 'Not authenticated' })
-      };
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMessage, subject: currentSubject })
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(()=>({}));
+      addAIMessage('Error ' + response.status + ': ' + (err.error || 'Something went wrong. Try again.'));
+      return;
     }
-
-    const calendar = getCalendar(tokens);
-
-    // Create multiple events
-    if (action === 'createEvents') {
-      const results = [];
-      for (const evt of events) {
-        try {
-          const event = {
-            summary: evt.summary,
-            description: evt.description || '',
-            start: {
-              dateTime: evt.startTime,
-              timeZone: 'America/Chicago',
-            },
-            end: {
-              dateTime: evt.endTime,
-              timeZone: 'America/Chicago',
-            },
-            reminders: {
-              useDefault: false,
-              overrides: [
-                { method: 'popup', minutes: 30 },
-              ],
-            },
-          };
-
-          const response = await calendar.events.insert({
-            calendarId: 'primary',
-            resource: event,
-          });
-          results.push({ success: true, id: response.data.id });
-        } catch (err) {
-          results.push({ success: false, error: err.message });
-        }
-      }
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ results })
-      };
+    const data = await response.json();
+    if (data.reply) {
+      const html = data.reply
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+      addAIMessage(html);
+    } else {
+      addAIMessage('No response received. Please try again.');
     }
-
-    // Create single event
-    if (action === 'createEvent') {
-      const event = {
-        summary: body.summary,
-        description: body.description || '',
-        start: {
-          dateTime: body.startTime,
-          timeZone: 'America/Chicago',
-        },
-        end: {
-          dateTime: body.endTime,
-          timeZone: 'America/Chicago',
-        },
-        reminders: {
-          useDefault: false,
-          overrides: [
-            { method: 'popup', minutes: 30 },
-          ],
-        },
-      };
-
-      const response = await calendar.events.insert({
-        calendarId: 'primary',
-        resource: event,
-      });
-
-      return {
-        statusCode: 200,
-        body: JSON.stringify({ 
-          success: true, 
-          eventId: response.data.id,
-          link: response.data.htmlLink 
-        })
-      };
-    }
-
-    return {
-      statusCode: 400,
-      body: JSON.stringify({ error: 'Invalid action' })
-    };
-
-  } catch (error) {
-    console.error('Calendar error:', error);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: error.message })
-    };
+  } catch (err) {
+    console.error('Chat error:', err);
+    addAIMessage('Connection error. Make sure you are on the deployed Netlify URL, not a local file.');
   }
-};
+}
+
+// ─── PLANNER ───
+const subjects = [
+  { name:'Math', color:'#4a7c6f', bg:'rgba(74,124,111,0.15)' },
+  { name:'Science', color:'#8b5cf6', bg:'rgba(139,92,246,0.15)' },
+  { name:'English', color:'#3b82f6', bg:'rgba(59,130,246,0.15)' },
+  { name:'SAT', color:'#ef4444', bg:'rgba(239,68,68,0.15)' }
+];
+const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+function toggleDay(btn) { btn.classList.toggle('on'); }
+
+function generatePlan() {
+  const activeDays = Array.from(document.querySelectorAll('.day-check.on')).map(b=>b.textContent);
+  const week = document.getElementById('planWeek');
+  week.innerHTML = '';
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=Sun
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const monday = new Date(today); monday.setDate(today.getDate() + mondayOffset);
+
+  days.forEach((day, i) => {
+    const d = new Date(monday); d.setDate(monday.getDate() + i);
+    const isToday = d.toDateString() === today.toDateString();
+    const isActive = activeDays.includes(day);
+    const col = document.createElement('div');
+    col.className = 'plan-day-col';
+    let blocks = '';
+    if (isActive) {
+      const s1 = subjects[i % subjects.length];
+      const s2 = subjects[(i+2) % subjects.length];
+      blocks = `<div class="plan-block" style="background:${s1.bg};color:${s1.color}">${s1.name}</div>`;
+      if (i % 2 === 0) blocks += `<div class="plan-block" style="background:${s2.bg};color:${s2.color}">${s2.name}</div>`;
+    }
+    col.innerHTML = `
+      <div class="plan-day-label">${day}</div>
+      <div class="day-num${isToday?' today':''}" style="font-size:0.75rem;width:24px;height:24px;margin:0 auto 0.4rem">${d.getDate()}</div>
+      ${blocks || '<div style="height:20px"></div>'}
+    `;
+    week.appendChild(col);
+  });
+}
+
+// ─── CONNECT ───
+function connectApp(app) {
+  // All Google services use the same OAuth flow
+  window.location.href = '/api/google-auth';
+}
+
+async function loadClassroomData() {
+  const container = document.getElementById('classroom-data');
+  if (!container) return;
+  container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Loading assignments...</p>';
+  try {
+    const res = await fetch('/api/classroom');
+    if (res.status === 401) { container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Connect Google Classroom above to see your assignments.</p>'; return; }
+    const data = await res.json();
+    if (data.error) { container.innerHTML = `<p style="color:var(--muted);font-size:0.85rem">${data.error}</p>`; return; }
+    if (!data.assignments || data.assignments.length === 0) {
+      container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No upcoming assignments found.</p>'; return;
+    }
+    container.innerHTML = data.assignments.map(a => `
+      <div class="upcoming-item">
+        <div class="upcoming-dot" style="background:var(--sage)"></div>
+        <div class="upcoming-info">
+          <div class="title">${a.title}</div>
+          <div class="meta">${a.course}</div>
+        </div>
+        <div class="upcoming-time">${a.dueText}</div>
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Could not load assignments.</p>';
+  }
+}
+
+async function loadGmailData() {
+  const container = document.getElementById('gmail-data');
+  if (!container) return;
+  container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Loading emails...</p>';
+  try {
+    const res = await fetch('/api/gmail');
+    if (res.status === 401) { container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Connect Gmail above to see school emails.</p>'; return; }
+    const data = await res.json();
+    if (!data.emails || data.emails.length === 0) { container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">No recent school emails found.</p>'; return; }
+    container.innerHTML = data.emails.map(e => `
+      <div class="upcoming-item">
+        <div class="upcoming-dot" style="background:var(--amber)"></div>
+        <div class="upcoming-info">
+          <div class="title">${e.subject}</div>
+          <div class="meta">${e.from}</div>
+        </div>
+        <div class="upcoming-time">${e.date}</div>
+      </div>`).join('');
+  } catch(e) {
+    container.innerHTML = '<p style="color:var(--muted);font-size:0.85rem">Could not load emails.</p>';
+  }
+}
+
+function checkGoogleConnectionStatus() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('google_connected') === 'true') {
+    // Mark all google cards as connected
+    ['classroom','gmail','calendar','drive'].forEach(app => {
+      const card = document.getElementById('card-'+app);
+      const btn = document.getElementById('btn-'+app);
+      if (card) card.classList.add('connected');
+      if (btn) btn.outerHTML = '<span class="connected-badge"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span> Connected</span>';
+    });
+    loadClassroomData();
+    loadGmailData();
+    addAIMessage('🎓 <strong>Google connected!</strong> I can now see your Classroom assignments and school emails. Want me to build a study plan around your upcoming deadlines?');
+    // Clean URL
+    window.history.replaceState({}, '', '/');
+  }
+  if (params.get('google_error')) {
+    const err = params.get('google_error');
+    if (err !== 'not_configured') {
+      addAIMessage('⚠️ Google connection failed: ' + err + '. Please try again.');
+    }
+    window.history.replaceState({}, '', '/');
+  }
+}
 </script>
 </body>
 </html>
